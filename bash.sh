@@ -2,7 +2,7 @@
 
 # Функция для обработки пользователей
 function users() {
-    getent passwd | awk -F: '{print $1, $6}' | sort
+    awk -F: '$3 >= 1000 {print $1 "\t" $6}' /etc/passwd | sort
 }
 
 # Функция для обработки процессов
@@ -88,12 +88,16 @@ function parse_param() {
     done
 }
 
-# Основной блок обработки аргументов
+# Обработка ошибок, если команда вызвана без параметров
 if [[ $# -eq 0 ]]; then
-    echo "Ошибка: Не указаны параметры." >&2
-    h_help
+    echo "Ошибка, действие не задано." >&2
+    if [[ -n "$error_file" ]]; then
+        echo "Ошибка, действие не задано." >> "$error_file"
+    fi
+    exit 1
 fi
 
 parse_param "$@"
 
 exit 0
+
